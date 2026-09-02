@@ -1,0 +1,3665 @@
+```html
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>De Schat van Hillegom</title>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #071b2b;
+    color: white;
+}
+
+button {
+    font-family: inherit;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   STARTSCHERM
+========================================================= */
+
+#startScreen {
+
+    min-height: 100vh;
+
+    padding: 30px 20px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+}
+
+.startBox {
+
+    width: 100%;
+
+    max-width: 600px;
+
+    background: #0d2b43;
+
+    border-radius: 20px;
+
+    padding: 30px 22px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.4);
+}
+
+.startBox h1 {
+
+    font-size: 36px;
+
+    margin: 0 0 10px;
+}
+
+.startBox .schat {
+
+    font-size: 65px;
+
+    margin-bottom: 10px;
+}
+
+.startBox p {
+
+    line-height: 1.6;
+
+    color: #d8e8f2;
+}
+
+.startButton {
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    margin-top: 15px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    background: #e7b84b;
+
+    color: #071b2b;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   GAME
+========================================================= */
+
+#gameScreen {
+
+    display: none;
+
+    padding-bottom: 30px;
+}
+
+.topBar {
+
+    background: #0d2b43;
+
+    padding: 12px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    box-shadow:
+        0 3px 10px rgba(0,0,0,.35);
+}
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+
+    text-align: center;
+}
+
+.stat {
+
+    background: #123b58;
+
+    border-radius: 10px;
+
+    padding: 8px 4px;
+}
+
+.statTitle {
+
+    font-size: 11px;
+
+    color: #b8d0df;
+}
+
+.statValue {
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-top: 3px;
+}
+
+
+/* =========================================================
+   GEHEIME CODE
+========================================================= */
+
+.codeBar {
+
+    margin-top: 10px;
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    flex-wrap: wrap;
+}
+
+.codeLetter {
+
+    width: 23px;
+
+    height: 30px;
+
+    border-radius: 5px;
+
+    background: #071b2b;
+
+    border: 1px solid #4b7189;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: bold;
+
+    font-size: 15px;
+}
+
+.codeLetter.found {
+
+    background: #e7b84b;
+
+    color: #071b2b;
+
+    border-color: #e7b84b;
+}
+
+
+/* =========================================================
+   INHOUD
+========================================================= */
+
+.content {
+
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 15px;
+}
+
+.card {
+
+    background: #0d2b43;
+
+    border-radius: 16px;
+
+    padding: 18px;
+
+    margin-bottom: 15px;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.25);
+}
+
+.card h2 {
+
+    margin-top: 0;
+
+    color: #e7b84b;
+}
+
+.story {
+
+    line-height: 1.6;
+
+    color: #dceaf2;
+}
+
+.locationStatus {
+
+    text-align: center;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+.distance {
+
+    text-align: center;
+
+    font-size: 26px;
+
+    font-weight: bold;
+
+    color: #e7b84b;
+
+    margin: 8px 0;
+}
+
+.direction {
+
+    text-align: center;
+
+    color: #bdd4e2;
+}
+
+#map {
+
+    width: 100%;
+
+    height: 400px;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   VRAAG
+========================================================= */
+
+#questionCard {
+
+    display: none;
+}
+
+.questionNumber {
+
+    color: #9fbaca;
+
+    font-size: 14px;
+
+    margin-bottom: 8px;
+}
+
+.question {
+
+    font-size: 20px;
+
+    line-height: 1.4;
+
+    font-weight: bold;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   OPEN ANTWOORD
+========================================================= */
+
+#answerInput {
+
+    width: 100%;
+
+    padding: 14px;
+
+    margin-top: 5px;
+
+    border-radius: 10px;
+
+    border: 2px solid #55788e;
+
+    background: #071b2b;
+
+    color: white;
+
+    font-size: 18px;
+
+    outline: none;
+}
+
+#answerInput:focus {
+
+    border-color: #e7b84b;
+}
+
+
+/* =========================================================
+   KNOPPEN
+========================================================= */
+
+.answerButton,
+.nextButton {
+
+    width: 100%;
+
+    padding: 15px;
+
+    margin-top: 12px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #e7b84b;
+
+    color: #071b2b;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.answerButton:disabled {
+
+    opacity: .5;
+
+    cursor: default;
+}
+
+
+/* =========================================================
+   MEERKEUZE
+========================================================= */
+
+.multipleChoice {
+
+    display: none;
+
+    margin-top: 10px;
+}
+
+.choiceButton {
+
+    width: 100%;
+
+    display: block;
+
+    text-align: left;
+
+    padding: 15px;
+
+    margin-top: 10px;
+
+    border-radius: 10px;
+
+    border: 2px solid #55788e;
+
+    background: #123b58;
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform .1s,
+        background .2s;
+}
+
+.choiceButton:hover {
+
+    transform: translateY(-1px);
+
+    background: #1b4c6d;
+}
+
+.choiceButton:disabled {
+
+    cursor: default;
+
+    opacity: .7;
+}
+
+.choiceButton.correctChoice {
+
+    background: #174d38;
+
+    border-color: #43b982;
+}
+
+.choiceButton.wrongChoice {
+
+    background: #542b2b;
+
+    border-color: #d86b6b;
+}
+
+
+/* =========================================================
+   RESULTAAT
+========================================================= */
+
+.result {
+
+    display: none;
+
+    margin-top: 15px;
+
+    padding: 15px;
+
+    border-radius: 10px;
+
+    line-height: 1.5;
+}
+
+.result.correct {
+
+    background: #174d38;
+
+    border: 1px solid #43b982;
+}
+
+.result.wrong {
+
+    background: #542b2b;
+
+    border: 1px solid #d86b6b;
+}
+
+.unlockedLetter {
+
+    text-align: center;
+
+    font-size: 42px;
+
+    font-weight: bold;
+
+    color: #e7b84b;
+
+    margin: 10px 0;
+}
+
+
+/* =========================================================
+   FINALE
+========================================================= */
+
+#finalScreen,
+#treasureScreen {
+
+    display: none;
+
+    text-align: center;
+}
+
+.finalCode {
+
+    font-size: 30px;
+
+    letter-spacing: 4px;
+
+    color: #e7b84b;
+
+    font-weight: bold;
+
+    margin: 20px 0;
+}
+
+.treasure {
+
+    font-size: 90px;
+
+    margin: 15px;
+}
+
+.bigButton {
+
+    width: 100%;
+
+    padding: 16px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #e7b84b;
+
+    color: #071b2b;
+
+    font-weight: bold;
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   SCHATMARKER
+========================================================= */
+
+.treasure-marker {
+
+    font-size: 32px;
+
+    text-align: center;
+
+    line-height: 40px;
+}
+
+
+/* =========================================================
+   MOBIEL
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .startBox h1 {
+
+        font-size: 29px;
+    }
+
+    #map {
+
+        height: 350px;
+    }
+
+    .codeLetter {
+
+        width: 21px;
+
+        height: 28px;
+
+        font-size: 13px;
+    }
+
+    .choiceButton {
+
+        font-size: 16px;
+
+        padding: 14px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="app">
+
+
+<!-- =======================================================
+     STARTSCHERM
+======================================================= -->
+
+<section id="startScreen">
+
+    <div class="startBox">
+
+        <div class="schat">
+            🏴‍☠️💰
+        </div>
+
+        <h1>
+            De Schat van Hillegom
+        </h1>
+
+        <p>
+            Welkom, avonturier!
+        </p>
+
+        <p>
+            Ga op pad door Hillegom en ontdek de verborgen plekken.
+            Bij iedere locatie wacht een vraag.
+        </p>
+
+        <p>
+            Beantwoord de vragen goed en verzamel de letters.
+            Samen vormen ze de naam van de plek waar de uiteindelijke
+            schat verborgen ligt.
+        </p>
+
+        <button
+            class="startButton"
+            onclick="startNieuwSpel()"
+        >
+            🗺️ Start de schattenjacht
+        </button>
+
+        <button
+            id="continueButton"
+            class="startButton"
+            style="
+                display:none;
+                background:#315a73;
+                color:white;
+            "
+            onclick="hervatSpel()"
+        >
+            ▶️ Verder met mijn spel
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =======================================================
+     GAME
+======================================================= -->
+
+<section id="gameScreen">
+
+
+    <!-- TOPBAR -->
+
+    <div class="topBar">
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div class="statTitle">
+                    TIJD
+                </div>
+
+                <div
+                    class="statValue"
+                    id="timer"
+                >
+                    00:00
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="statTitle">
+                    PUNTEN
+                </div>
+
+                <div
+                    class="statValue"
+                    id="score"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="statTitle">
+                    LOCATIE
+                </div>
+
+                <div
+                    class="statValue"
+                    id="locationNumber"
+                >
+                    1/14
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="codeBar"
+            id="codeBar"
+        ></div>
+
+    </div>
+
+
+    <!-- INHOUD -->
+
+    <div class="content">
+
+
+        <!-- STATUS -->
+
+        <div class="card">
+
+            <div
+                class="locationStatus"
+                id="locationStatus"
+            >
+                🧭 Ga naar de volgende locatie
+            </div>
+
+            <div
+                class="distance"
+                id="distance"
+            >
+                GPS zoeken...
+            </div>
+
+            <div
+                class="direction"
+                id="direction"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <!-- VERHAAL -->
+
+        <div class="card">
+
+            <h2 id="locationTitle">
+                Volgende locatie
+            </h2>
+
+            <div
+                class="story"
+                id="story"
+            >
+                Volg de kaart naar de volgende bestemming.
+            </div>
+
+        </div>
+
+
+        <!-- KAART -->
+
+        <div id="map"></div>
+
+
+        <!-- VRAAG -->
+
+        <div
+            class="card"
+            id="questionCard"
+        >
+
+            <div
+                class="questionNumber"
+                id="questionNumber"
+            >
+                Vraag 1 van 14
+            </div>
+
+
+            <div
+                class="question"
+                id="questionText"
+            ></div>
+
+
+            <!-- OPEN ANTWOORD -->
+
+            <div id="openAnswerArea">
+
+                <input
+                    type="text"
+                    id="answerInput"
+                    placeholder="Typ je antwoord..."
+                    autocomplete="off"
+                >
+
+                <button
+                    class="answerButton"
+                    id="answerButton"
+                    onclick="controleerAntwoord()"
+                >
+                    ✓ Antwoord controleren
+                </button>
+
+            </div>
+
+
+            <!-- MEERKEUZE -->
+
+            <div
+                class="multipleChoice"
+                id="multipleChoice"
+            ></div>
+
+
+            <!-- RESULTAAT -->
+
+            <div
+                class="result"
+                id="resultBox"
+            ></div>
+
+
+            <!-- VOLGENDE -->
+
+            <button
+                class="nextButton"
+                id="nextButton"
+                onclick="gaVerder()"
+                style="display:none;"
+            >
+                ➡️ Ga verder
+            </button>
+
+        </div>
+
+
+        <!-- FINALE -->
+
+        <div
+            class="card"
+            id="finalScreen"
+        >
+
+            <div class="treasure">
+                🗺️
+            </div>
+
+            <h2>
+                Je hebt alle letters gevonden!
+            </h2>
+
+            <p>
+                De geheime code is:
+            </p>
+
+            <div
+                class="finalCode"
+                id="finalCode"
+            >
+                ______________
+            </div>
+
+            <p>
+                De eindbestemming wordt nu op de kaart onthuld.
+                Ga naar de schat!
+            </p>
+
+        </div>
+
+
+        <!-- SCHAT GEVONDEN -->
+
+        <div
+            class="card"
+            id="treasureScreen"
+        >
+
+            <div class="treasure">
+                💰🏴‍☠️
+            </div>
+
+            <h2>
+                DE SCHAT IS GEVONDEN!
+            </h2>
+
+            <p>
+                Gefeliciteerd, avonturier!
+            </p>
+
+            <p>
+                Je hebt de Schat van Hillegom gevonden.
+            </p>
+
+            <div class="finalCode">
+                ELSBROEKERPARK
+            </div>
+
+            <p>
+
+                Tijd:
+                <strong id="finalTime"></strong>
+
+                <br>
+
+                Score:
+                <strong id="finalScore"></strong>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+
+<script>
+
+/* =========================================================
+   OPSLAG
+========================================================= */
+
+/*
+   V3 is een nieuwe opslagnaam.
+
+   Hierdoor wordt oude voortgang uit eerdere versies
+   niet opnieuw ingelezen.
+*/
+
+const OPSLAG_KEY = "schatHillegomV3";
+
+
+/* =========================================================
+   SPELVARIABELEN
+========================================================= */
+
+let seconden = 0;
+
+let score = 0;
+
+let timer = null;
+
+let gpsWatch = null;
+
+let kaart = null;
+
+let doelMarker = null;
+
+let spelerMarker = null;
+
+let huidigeLocatie = 0;
+
+let vraagBeantwoord = false;
+
+let finaleActief = false;
+
+let schatGevonden = false;
+
+let laatstePositie = null;
+
+
+/*
+   Vaste letterposities.
+
+   14 vragen = 14 letters.
+
+   Een fout antwoord verandert deze array NIET.
+*/
+
+let gevondenLetters =
+    Array(14).fill("");
+
+
+/* =========================================================
+   LOCATIES
+========================================================= */
+
+let locaties = [
+
+
+/* =========================================================
+   1 - E
+========================================================= */
+
+{
+    naam: "Maartenskerk",
+
+    lat: 52.29158436872395,
+
+    lon: 4.578381843614069,
+
+    letter: "E",
+
+    verhaal:
+        "Je staat bij de Maartenskerk, een van de belangrijkste historische gebouwen van Hillegom. De kerk staat midden in het oude dorpscentrum en vormt daardoor een belangrijk onderdeel van de geschiedenis van Hillegom. De kerk en de toren zijn door de eeuwen heen meerdere keren aangepast en uitgebreid. Voor inwoners was dit eeuwenlang niet alleen een plek voor kerkdiensten, maar ook een herkenningspunt midden in het dorp. De toren is daardoor een van de meest herkenbare historische elementen van Hillegom.",
+
+    vraag:
+        "Uit welke eeuw dateert het oudste deel van de kerktoren?",
+
+    antwoorden: [
+        "13e eeuw",
+        "13",
+        "dertiende eeuw"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "Het oudste deel van de kerktoren dateert uit de 13e eeuw."
+},
+
+
+/* =========================================================
+   2 - L
+========================================================= */
+
+{
+    naam: "Oude Pomp",
+
+    lat: 52.291892790103525,
+
+    lon: 4.578407061746015,
+
+    letter: "L",
+
+    verhaal:
+        "Deze oude dorpspomp herinnert aan een tijd waarin schoon water niet zomaar uit iedere woning kwam. Een openbare pomp was vroeger een belangrijke voorziening voor de bewoners van een dorp. Mensen kwamen hier water halen voor het huishouden en voor andere dagelijkse bezigheden. Tegenwoordig is een dergelijke pomp vooral een historisch object, maar vroeger was zo'n voorziening van groot praktisch belang voor de gemeenschap.",
+
+    vraag:
+        "In welk jaar werd deze dorpspomp geplaatst?",
+
+    antwoorden: [
+        "1740"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "Het juiste antwoord is 1740."
+},
+
+
+/* =========================================================
+   3 - S
+========================================================= */
+
+{
+    naam: "Hof van Hillegom",
+
+    lat: 52.29113432120146,
+
+    lon: 4.5796145536194075,
+
+    letter: "S",
+
+    verhaal:
+        "Het Hof van Hillegom is een van de plekken waar je de rijke geschiedenis van het dorp goed kunt terugzien. Het gebouw en het terrein waren verbonden met invloedrijke families en bestuurders die eeuwenlang een rol speelden in de streek. Vooral de familie Six is belangrijk in de geschiedenis van deze plek. Het Hof laat zien dat Hillegom vroeger niet alleen een agrarisch dorp was, maar ook verbonden was met welgestelde families en buitenplaatsen in de omgeving.",
+
+    vraag:
+        "In welk jaar kocht Jan Six II het Hof van Hillegom?",
+
+    antwoorden: [
+        "1749"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "Jan Six II kocht het Hof van Hillegom in 1749."
+},
+
+
+/* =========================================================
+   4 - B
+========================================================= */
+
+{
+    naam: "Van Nispenpark",
+
+    lat: 52.29581587828381,
+
+    lon: 4.579582376258872,
+
+    letter: "B",
+
+    verhaal:
+        "Het Van Nispenpark is een groene plek midden in Hillegom. In het park staat een monument dat herinnert aan een bijzonder moment uit de geschiedenis van de popmuziek. In de jaren zestig waren The Beatles uitgegroeid tot een wereldwijd fenomeen. Hun bezoek aan Hillegom was daarom een opvallende gebeurtenis voor het dorp. Het verhaal van hun optreden laat zien hoe zelfs een relatief klein dorp onderdeel kon worden van grote internationale ontwikkelingen in de populaire cultuur.",
+
+    vraag:
+        "Op welke datum traden The Beatles in Hillegom op?",
+
+    antwoorden: [
+        "5 juni 1964",
+        "05-06-1964",
+        "5-6-1964",
+        "05/06/1964"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "The Beatles traden op 5 juni 1964 op in Hillegom."
+},
+
+
+/* =========================================================
+   5 - R
+========================================================= */
+
+{
+    naam: "Sint-Martinuskerk",
+
+    lat: 52.295111688021414,
+
+    lon: 4.580406278947895,
+
+    letter: "R",
+
+    verhaal:
+        "De Sint-Martinuskerk is een opvallend kerkgebouw in Hillegom. De kerk vormt samen met de omliggende bebouwing een belangrijk onderdeel van het historische straatbeeld. Kijk bij deze locatie vooral goed naar de details van de gevel. Kerkgebouwen werden vroeger niet alleen gebouwd om ruimte te bieden aan gelovigen, maar waren ook belangrijke herkenningspunten in een dorp. Architecten besteedden daarom veel aandacht aan de vorm, ramen en versieringen van de gevel.",
+
+    vraag:
+        "Hoeveel ruitvormige ramen tel je boven de hoofdingang?",
+
+    antwoorden: [
+        "21"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "Het juiste aantal ruitvormige ramen is 21."
+},
+
+
+/* =========================================================
+   6 - O
+========================================================= */
+
+{
+    naam: "Reuzenbol Jan Six",
+
+    lat: 52.29618303162005,
+
+    lon: 4.578969024633498,
+
+    letter: "O",
+
+    verhaal:
+        "De enorme reuzenbollen zijn een modern eerbetoon aan de geschiedenis van de Bollenstreek. De kunstwerken staan verspreid door de streek en verbinden kunst met het verhaal van de bloembollenteelt. Deze specifieke bol verwijst naar een familie die al eerder tijdens de speurtocht voorbij is gekomen. Daardoor vormt deze locatie een mooie verbinding tussen het moderne Hillegom en de eeuwenoude geschiedenis van het dorp.",
+
+    vraag:
+        "Welke achternaam hoort bij de familie die op deze bol wordt afgebeeld?",
+
+    antwoorden: [
+        "six"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "De familie Six speelde een belangrijke rol in de geschiedenis van Hillegom."
+},
+
+
+/* =========================================================
+   7 - E
+========================================================= */
+
+{
+    naam: "Flying in Full Bloom",
+
+    lat: 52.29810369449422,
+
+    lon: 4.580796361628804,
+
+    letter: "E",
+
+    verhaal:
+        "Ook hier staat een enorme kunstbol die onderdeel is van de kunstroute door de Bollenstreek. De reuzenbollen zijn geïnspireerd op de bloemen en het landschap waar de streek bekend om staat. Bekijk het kunstwerk van dichtbij en let op de verschillende onderdelen van de voorstelling. De kunstenaar heeft een mensfiguur gecombineerd met het thema van bloemen en beweging.",
+
+    vraag:
+        "Welke kleur hebben de vleugels van de vliegende vrouw op de bol?",
+
+    antwoorden: [
+        "roze"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "De vleugels van de vliegende vrouw zijn roze."
+},
+
+
+/* =========================================================
+   8 - K
+========================================================= */
+
+{
+    naam: "De Groene Bollenschuur",
+
+    lat: 52.28144962686563,
+
+    lon: 4.572251074291286,
+
+    letter: "K",
+
+    verhaal:
+        "De bloembollenteelt heeft het landschap van Hillegom sterk veranderd. Vanaf de negentiende eeuw groeide de handel in bloembollen en ontstond er steeds meer behoefte aan gebouwen waar de oogst kon worden verwerkt en opgeslagen. Bollenschuren werden speciaal aangepast aan het werk met bloembollen. De gebouwen zijn daardoor een belangrijk onderdeel geworden van het historische landschap van de Bollenstreek. Veel oude schuren zijn inmiddels verdwenen of veranderd, waardoor overgebleven exemplaren waardevol zijn voor het bewaren van dit stukje lokale geschiedenis.",
+
+    vraag:
+        "Waarom werden bollenschuren traditioneel zo gebouwd dat er veel lucht door de ruimte kon stromen?",
+
+    type: "multiple",
+
+    opties: [
+        "Om de bollen te beschermen tegen vorst",
+        "Om de bollen goed te kunnen laten drogen",
+        "Om werknemers verkoeling te geven",
+        "Om de schuur geschikt te maken voor koeien"
+    ],
+
+    antwoorden: [
+        "om de bollen goed te kunnen laten drogen"
+    ],
+
+    uitleg:
+        "Een goede luchtcirculatie was belangrijk om de geoogste bloembollen droog en in goede conditie te houden."
+},
+
+
+/* =========================================================
+   9 - E
+========================================================= */
+
+{
+    naam: "Hillegommerbeek",
+
+    lat: 52.290599018924006,
+
+    lon: 4.578816266841088,
+
+    letter: "E",
+
+    verhaal:
+        "Water en landschap zijn onlosmakelijk verbonden met het ontstaan van Hillegom. De omgeving van het dorp is in duizenden jaren gevormd door de zee, duinen en verschillende soorten bodem. De oude dorpskern ontstond op een plek die hoger en droger lag dan het omliggende gebied. Daardoor was deze omgeving aantrekkelijker voor bewoning. De Hillegommerbeek en andere watergangen waren daarnaast belangrijk voor de afwatering en voor het landschap rondom het dorp.",
+
+    vraag:
+        "Op welk type landschap ontstond de historische kern van Hillegom?",
+
+    type: "multiple",
+
+    opties: [
+        "Een rivierdelta",
+        "Een oude strandwal",
+        "Een droogmakerij",
+        "Een zeekleigebied"
+    ],
+
+    antwoorden: [
+        "een oude strandwal"
+    ],
+
+    uitleg:
+        "De historische kern van Hillegom ligt op een oude strandwal. Deze hoger gelegen zandige grond was aantrekkelijk voor bewoning."
+},
+
+
+/* =========================================================
+   10 - R
+========================================================= */
+
+{
+    naam: "Station Hillegom",
+
+    lat: 52.30307448458849,
+
+    lon: 4.566244720789654,
+
+    letter: "R",
+
+    verhaal:
+        "De komst van de spoorlijn veranderde Hillegom ingrijpend. Vanaf het station konden inwoners gemakkelijker naar andere plaatsen reizen en werd het ook eenvoudiger om goederen te vervoeren. Dat was belangrijk voor de ontwikkeling van de bloembollensector, omdat de producten snel naar andere steden en handelsplaatsen konden worden gebracht. Het station verbond Hillegom daardoor steeds sterker met de rest van Nederland.",
+
+    vraag:
+        "In welke windrichting ligt Leiden vanaf hier?",
+
+    antwoorden: [
+        "noord",
+        "noorden",
+        "noordelijk"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "Leiden ligt vanaf Station Hillegom in noordelijke richting."
+},
+
+
+/* =========================================================
+   11 - P
+========================================================= */
+
+{
+    naam: "Zanderij / Bollenvelden",
+
+    lat: 52.30072964248505,
+
+    lon: 4.565366338923225,
+
+    letter: "P",
+
+    verhaal:
+        "Het landschap rond Hillegom lijkt tegenwoordig vanzelfsprekend, maar grote delen ervan zijn door mensen aangepast. De strandwallen waren hoger gelegen zandige gebieden. Vanaf de negentiende eeuw werd op verschillende plaatsen zand afgegraven. Dat zand was waardevol als bouwmateriaal en voor andere toepassingen. Door deze afgravingen veranderde het landschap en ontstonden lagere gebieden die later op verschillende manieren gebruikt konden worden. De geschiedenis van de zanderij is daardoor direct verbonden met de ontwikkeling van Hillegom.",
+
+    vraag:
+        "Waarom werd de oorspronkelijke strandwal hier afgegraven?",
+
+    antwoorden: [
+        "zandwinning",
+        "voor zand",
+        "om zand te winnen",
+        "het zand werd gebruikt",
+        "zand"
+    ],
+
+    type: "open",
+
+    uitleg:
+        "De strandwal werd onder andere afgegraven voor zandwinning."
+},
+
+
+/* =========================================================
+   12 - A
+========================================================= */
+
+{
+    naam: "Julianapark",
+
+    lat: 52.29327443156153,
+
+    lon: 4.584730352527217,
+
+    letter: "A",
+
+    verhaal:
+        "Het Julianapark is tegenwoordig een groene ontmoetingsplek voor inwoners van Hillegom. De geschiedenis van deze locatie gaat echter verder terug. Het terrein had vroeger een heel andere functie en was onderdeel van het dagelijkse leven van kinderen uit de buurt. Toen die functie verdween, veranderde het terrein uiteindelijk in een park. Juist daardoor is deze plek interessant: onder het groen van vandaag zit een stukje geschiedenis van het onderwijs in Hillegom verborgen.",
+
+    vraag:
+        "Welke basisschool stond vroeger op de plek waar je nu in het Julianapark staat?",
+
+    type: "multiple",
+
+    opties: [
+        "De Prinses Marijkeschool",
+        "De Hilmare",
+        "De Johannesschool",
+        "De Mariaschool"
+    ],
+
+    antwoorden: [
+        "de prinses marijkeschool"
+    ],
+
+    uitleg:
+        "Op deze plek stond vroeger de Prinses Marijkeschool. Het terrein kreeg later een nieuwe functie als park."
+},
+
+
+/* =========================================================
+   13 - R
+========================================================= */
+
+{
+    naam: "Heemtuin Hillegom",
+
+    lat: 52.28284816974457,
+
+    lon: 4.588542478472539,
+
+    letter: "R",
+
+    verhaal:
+        "De Heemtuin is aangelegd om de natuurlijke plantenwereld van de streek zichtbaar te maken. Dat is bijzonder, omdat de omgeving van Hillegom door de eeuwen heen sterk door mensen is veranderd. De bodem bepaalt voor een groot deel welke planten ergens kunnen groeien. In de Bollenstreek liggen verschillende bodemtypen relatief dicht bij elkaar. Daardoor kan het landschap op korte afstand al behoorlijk veranderen. De Heemtuin helpt om die natuurlijke verschillen herkenbaar te maken.",
+
+    vraag:
+        "Welke bodemsoort zorgt ervoor dat de Heemtuin een ander karakter heeft dan de hoger gelegen zandgronden van Hillegom?",
+
+    type: "multiple",
+
+    opties: [
+        "Klei",
+        "Löss",
+        "Veen",
+        "Leem"
+    ],
+
+    antwoorden: [
+        "veen",
+        "veengrond",
+        "een veenbodem",
+        "veenbodem"
+    ],
+
+    uitleg:
+        "De Heemtuin ligt op een veenbodem. Dit zorgt voor andere omstandigheden voor planten dan op de hoger gelegen zandgronden."
+},
+
+
+/* =========================================================
+   14 - K
+========================================================= */
+
+{
+    naam: "Zwembad De Vosse",
+
+    lat: 52.29529156144753,
+
+    lon: 4.590548865379992,
+
+    letter: "K",
+
+    verhaal:
+        "Zwemmen heeft in Hillegom al lange tijd een plek in het openbare leven. Voordat het huidige zwembad er was, konden inwoners gebruikmaken van een ouder openluchtbad op een andere plek in het dorp. Dat bad verdween uiteindelijk en maakte plaats voor een nieuwe voorziening. De komst van het huidige zwembad betekende dat Hillegom een moderne plek kreeg waar inwoners konden zwemmen, sporten en elkaar ontmoeten. De Vosse groeide daarmee uit tot een belangrijke voorziening voor het dorp en de omgeving.",
+
+    vraag:
+        "In welk jaar werd het huidige zwembad De Vosse geopend?",
+
+    type: "multiple",
+
+    opties: [
+        "1958",
+        "1964",
+        "1970",
+        "1976"
+    ],
+
+    antwoorden: [
+        "1970"
+    ],
+
+    uitleg:
+        "Het huidige zwembad De Vosse werd in 1970 geopend. Het verving het oudere openluchtzwembad dat tot 1969 aan de Jonkheer Mockkade lag."
+}
+
+];
+
+
+/* =========================================================
+   FINALE
+========================================================= */
+
+const finale = {
+
+    naam: "Elsbroekerpark",
+
+    lat: 52.28373975028092,
+
+    lon: 4.580633791698804,
+
+    /*
+       Binnen 40 meter = schat gevonden.
+    */
+
+    afstand: 40,
+
+    /*
+       Binnen 100 meter wordt de exacte locatie
+       op de kaart zichtbaar.
+    */
+
+    onthulAfstand: 100
+};
+
+
+/* =========================================================
+   ICONEN
+========================================================= */
+
+const schatkistIcon = L.divIcon({
+
+    className: "treasure-marker",
+
+    html: "💰",
+
+    iconSize: [40, 40],
+
+    iconAnchor: [20, 20]
+
+});
+
+
+const spelerIcon = L.divIcon({
+
+    className: "treasure-marker",
+
+    html: "🧭",
+
+    iconSize: [40, 40],
+
+    iconAnchor: [20, 20]
+
+});
+
+
+/* =========================================================
+   NIEUW SPEL
+========================================================= */
+
+function startNieuwSpel() {
+
+    seconden = 0;
+
+    score = 0;
+
+    huidigeLocatie = 0;
+
+    vraagBeantwoord = false;
+
+    finaleActief = false;
+
+    schatGevonden = false;
+
+    gevondenLetters =
+        Array(14).fill("");
+
+    laatstePositie = null;
+
+    localStorage.removeItem(OPSLAG_KEY);
+
+
+    document.getElementById(
+        "startScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "gameScreen"
+    ).style.display = "block";
+
+
+    initKaart();
+
+    updateCode();
+
+    updateStats();
+
+    startTimer();
+
+    startGPS();
+
+    toonLocatie();
+
+    houdSchermWakker();
+
+    slaOp();
+}
+
+
+/* =========================================================
+   HERVAT SPEL
+========================================================= */
+
+function hervatSpel() {
+
+    const opgeslagen =
+        localStorage.getItem(OPSLAG_KEY);
+
+
+    if (!opgeslagen) {
+
+        startNieuwSpel();
+
+        return;
+    }
+
+
+    try {
+
+        const data =
+            JSON.parse(opgeslagen);
+
+
+        seconden =
+            Number(data.seconden) || 0;
+
+
+        score =
+            Number(data.score) || 0;
+
+
+        huidigeLocatie =
+            Number.isInteger(data.huidigeLocatie)
+                ? data.huidigeLocatie
+                : 0;
+
+
+        gevondenLetters =
+            Array.isArray(data.gevondenLetters)
+                ? data.gevondenLetters.slice(0,14)
+                : Array(14).fill("");
+
+
+        while (
+            gevondenLetters.length < 14
+        ) {
+
+            gevondenLetters.push("");
+
+        }
+
+
+        finaleActief =
+            Boolean(data.finaleActief);
+
+
+        schatGevonden =
+            Boolean(data.schatGevonden);
+
+
+        vraagBeantwoord = false;
+
+
+        document.getElementById(
+            "startScreen"
+        ).style.display = "none";
+
+
+        document.getElementById(
+            "gameScreen"
+        ).style.display = "block";
+
+
+        initKaart();
+
+        updateCode();
+
+        updateStats();
+
+        startTimer();
+
+        startGPS();
+
+        houdSchermWakker();
+
+
+        if (schatGevonden) {
+
+            finaleActief = true;
+
+            activeerFinale();
+
+            toonSchatGevonden();
+
+        }
+
+        else if (finaleActief) {
+
+            activeerFinale();
+
+        }
+
+        else {
+
+            toonLocatie();
+
+        }
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Opslag kon niet worden geladen:",
+            error
+        );
+
+        startNieuwSpel();
+
+    }
+
+}
+
+
+/* =========================================================
+   KAART
+========================================================= */
+
+function initKaart() {
+
+    if (kaart) {
+
+        return;
+    }
+
+
+    kaart =
+        L.map("map").setView(
+            [52.293, 4.579],
+            14
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+
+            maxZoom: 19,
+
+            attribution:
+                "&copy; OpenStreetMap"
+
+        }
+    ).addTo(kaart);
+
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+function startTimer() {
+
+    if (timer) {
+
+        clearInterval(timer);
+
+    }
+
+
+    timer =
+        setInterval(
+            function() {
+
+                seconden++;
+
+                updateTimer();
+
+                slaOp();
+
+            },
+            1000
+        );
+
+
+    updateTimer();
+}
+
+
+function updateTimer() {
+
+    const minuten =
+        Math.floor(
+            seconden / 60
+        );
+
+
+    const sec =
+        seconden % 60;
+
+
+    document.getElementById(
+        "timer"
+    ).textContent =
+
+        String(minuten).padStart(2,"0") +
+
+        ":" +
+
+        String(sec).padStart(2,"0");
+}
+
+
+/* =========================================================
+   GPS STARTEN
+========================================================= */
+
+function startGPS() {
+
+    if (!navigator.geolocation) {
+
+        document.getElementById(
+            "distance"
+        ).textContent =
+            "GPS niet beschikbaar";
+
+        return;
+    }
+
+
+    if (gpsWatch !== null) {
+
+        navigator.geolocation.clearWatch(
+            gpsWatch
+        );
+
+    }
+
+
+    gpsWatch =
+        navigator.geolocation.watchPosition(
+
+            function(position) {
+
+                verwerkGPS(position);
+
+            },
+
+            function(error) {
+
+                console.log(
+                    "GPS fout:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "distance"
+                ).textContent =
+                    "GPS niet beschikbaar";
+
+
+                document.getElementById(
+                    "direction"
+                ).textContent =
+                    "Geef toestemming voor locatiegebruik.";
+
+            },
+
+            {
+
+                enableHighAccuracy: true,
+
+                maximumAge: 3000,
+
+                timeout: 15000
+
+            }
+
+        );
+
+}
+
+
+/* =========================================================
+   GPS VERWERKEN
+========================================================= */
+
+function verwerkGPS(position) {
+
+    const lat =
+        position.coords.latitude;
+
+
+    const lon =
+        position.coords.longitude;
+
+
+    const nieuwePositie = {
+
+        lat: lat,
+
+        lon: lon
+
+    };
+
+
+    laatstePositie =
+        nieuwePositie;
+
+
+    /* SPELER */
+
+    if (!spelerMarker) {
+
+        spelerMarker =
+            L.marker(
+                [lat, lon],
+                {
+                    icon: spelerIcon
+                }
+            ).addTo(kaart);
+
+    }
+
+    else {
+
+        spelerMarker.setLatLng(
+            [lat, lon]
+        );
+
+    }
+
+
+    /* FINALE */
+
+    if (finaleActief) {
+
+        verwerkFinaleGPS(
+            nieuwePositie
+        );
+
+        return;
+    }
+
+
+    /* NORMALE LOCATIE */
+
+    const locatie =
+        locaties[huidigeLocatie];
+
+
+    if (!locatie) {
+
+        return;
+    }
+
+
+    const afstand =
+        berekenAfstand(
+            lat,
+            lon,
+            locatie.lat,
+            locatie.lon
+        );
+
+
+    document.getElementById(
+        "distance"
+    ).textContent =
+        formatAfstand(afstand);
+
+
+    document.getElementById(
+        "direction"
+    ).textContent =
+
+        "Bestemming ligt richting " +
+
+        bepaalRichting(
+            lat,
+            lon,
+            locatie.lat,
+            locatie.lon
+        );
+
+
+    /*
+       Vraag wordt beschikbaar binnen 40 meter.
+    */
+
+    if (
+        afstand <= 40 &&
+        !vraagBeantwoord
+    ) {
+
+        toonVraag();
+
+    }
+
+}
+
+
+/* =========================================================
+   LOCATIE TONEN
+========================================================= */
+
+function toonLocatie() {
+
+    if (
+        huidigeLocatie >=
+        locaties.length
+    ) {
+
+        activeerFinale();
+
+        return;
+    }
+
+
+    const locatie =
+        locaties[huidigeLocatie];
+
+
+    vraagBeantwoord = false;
+
+
+    document.getElementById(
+        "questionCard"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "finalScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "treasureScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "locationTitle"
+    ).textContent =
+        locatie.naam;
+
+
+    document.getElementById(
+        "story"
+    ).textContent =
+        "Ga naar deze locatie. Zodra je binnen 40 meter bent, verschijnt de vraag.";
+
+
+    document.getElementById(
+        "locationStatus"
+    ).textContent =
+        "🧭 Ga naar " +
+        locatie.naam;
+
+
+    document.getElementById(
+        "distance"
+    ).textContent =
+        "GPS zoeken...";
+
+
+    document.getElementById(
+        "direction"
+    ).textContent =
+        "—";
+
+
+    /* OUDE MARKER VERWIJDEREN */
+
+    if (doelMarker) {
+
+        kaart.removeLayer(
+            doelMarker
+        );
+
+        doelMarker = null;
+    }
+
+
+    /* NIEUWE MARKER */
+
+    doelMarker =
+        L.marker(
+            [
+                locatie.lat,
+                locatie.lon
+            ],
+            {
+                icon: schatkistIcon
+            }
+        )
+        .addTo(kaart)
+        .bindPopup(
+            "<strong>🏴‍☠️ " +
+            locatie.naam +
+            "</strong>"
+        );
+
+
+    /* KAART POSITIE */
+
+    if (!laatstePositie) {
+
+        kaart.setView(
+            [
+                locatie.lat,
+                locatie.lon
+            ],
+            15
+        );
+
+    }
+
+    else {
+
+        kaart.setView(
+            [
+                laatstePositie.lat,
+                laatstePositie.lon
+            ],
+            15
+        );
+
+    }
+
+
+    updateStats();
+
+    slaOp();
+
+}
+
+
+/* =========================================================
+   VRAAG TONEN
+========================================================= */
+
+function toonVraag() {
+
+    if (vraagBeantwoord) {
+
+        return;
+    }
+
+
+    const locatie =
+        locaties[huidigeLocatie];
+
+
+    document.getElementById(
+        "questionCard"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "questionNumber"
+    ).textContent =
+
+        "Vraag " +
+
+        (huidigeLocatie + 1) +
+
+        " van " +
+
+        locaties.length;
+
+
+    document.getElementById(
+        "questionText"
+    ).textContent =
+        locatie.vraag;
+
+
+    /* RESULTAAT RESETTEN */
+
+    const resultBox =
+        document.getElementById(
+            "resultBox"
+        );
+
+
+    resultBox.style.display =
+        "none";
+
+
+    resultBox.className =
+        "result";
+
+
+    document.getElementById(
+        "nextButton"
+    ).style.display =
+        "none";
+
+
+    /* VERHAAL */
+
+    document.getElementById(
+        "story"
+    ).textContent =
+        locatie.verhaal;
+
+
+    document.getElementById(
+        "locationStatus"
+    ).textContent =
+        "📍 Je bent bij de locatie!";
+
+
+    /*
+       OPEN OF MEERKEUZE
+    */
+
+    if (
+        locatie.type === "multiple"
+    ) {
+
+        toonMeerkeuze(
+            locatie
+        );
+
+    }
+
+    else {
+
+        toonOpenVraag();
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN VRAAG
+========================================================= */
+
+function toonOpenVraag() {
+
+    document.getElementById(
+        "openAnswerArea"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "multipleChoice"
+    ).style.display =
+        "none";
+
+
+    const input =
+        document.getElementById(
+            "answerInput"
+        );
+
+
+    input.value = "";
+
+    input.disabled = false;
+
+
+    document.getElementById(
+        "answerButton"
+    ).disabled = false;
+
+
+    setTimeout(
+        function() {
+
+            input.focus();
+
+        },
+        100
+    );
+
+}
+
+
+/* =========================================================
+   MEERKEUZE TONEN
+========================================================= */
+
+function toonMeerkeuze(locatie) {
+
+    document.getElementById(
+        "openAnswerArea"
+    ).style.display =
+        "none";
+
+
+    const container =
+        document.getElementById(
+            "multipleChoice"
+        );
+
+
+    container.innerHTML = "";
+
+    container.style.display =
+        "block";
+
+
+    locatie.opties.forEach(
+        function(optie, index) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.className =
+                "choiceButton";
+
+
+            button.textContent =
+
+                String.fromCharCode(
+                    65 + index
+                ) +
+
+                ". " +
+
+                optie;
+
+
+            button.onclick =
+                function() {
+
+                    controleerMeerkeuze(
+                        optie,
+                        button
+                    );
+
+                };
+
+
+            container.appendChild(
+                button
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   OPEN ANTWOORD CONTROLEREN
+========================================================= */
+
+function controleerAntwoord() {
+
+    if (vraagBeantwoord) {
+
+        return;
+    }
+
+
+    const locatie =
+        locaties[huidigeLocatie];
+
+
+    if (!locatie) {
+
+        return;
+    }
+
+
+    const input =
+        document.getElementById(
+            "answerInput"
+        );
+
+
+    const gegevenAntwoord =
+        normaliseer(
+            input.value
+        );
+
+
+    if (!gegevenAntwoord) {
+
+        return;
+    }
+
+
+    const goed =
+        locatie.antwoorden.some(
+            function(antwoord) {
+
+                return (
+                    normaliseer(
+                        antwoord
+                    ) ===
+                    gegevenAntwoord
+                );
+
+            }
+        );
+
+
+    verwerkAntwoord(
+        goed
+    );
+
+}
+
+
+/* =========================================================
+   MEERKEUZE CONTROLEREN
+========================================================= */
+
+function controleerMeerkeuze(
+    gekozenAntwoord,
+    geklikteKnop
+) {
+
+    if (vraagBeantwoord) {
+
+        return;
+    }
+
+
+    const locatie =
+        locaties[huidigeLocatie];
+
+
+    const goed =
+        locatie.antwoorden.some(
+            function(antwoord) {
+
+                return (
+                    normaliseer(
+                        antwoord
+                    ) ===
+                    normaliseer(
+                        gekozenAntwoord
+                    )
+                );
+
+            }
+        );
+
+
+    /*
+       Toon visueel welk antwoord gekozen is.
+    */
+
+    if (goed) {
+
+        geklikteKnop.classList.add(
+            "correctChoice"
+        );
+
+    }
+
+    else {
+
+        geklikteKnop.classList.add(
+            "wrongChoice"
+        );
+
+    }
+
+
+    /*
+       Alle antwoordknoppen uitschakelen.
+       Hierdoor is een tweede poging onmogelijk.
+    */
+
+    const knoppen =
+        document.querySelectorAll(
+            ".choiceButton"
+        );
+
+
+    knoppen.forEach(
+        function(knop) {
+
+            knop.disabled = true;
+
+        }
+    );
+
+
+    verwerkAntwoord(
+        goed
+    );
+
+}
+
+
+/* =========================================================
+   ANTWOORD VERWERKEN
+========================================================= */
+
+function verwerkAntwoord(goed) {
+
+    /*
+       De vraag wordt hier definitief afgesloten.
+    */
+
+    vraagBeantwoord = true;
+
+
+    const locatie =
+        locaties[huidigeLocatie];
+
+
+    /*
+       Open antwoord uitschakelen.
+    */
+
+    const input =
+        document.getElementById(
+            "answerInput"
+        );
+
+
+    input.disabled = true;
+
+
+    document.getElementById(
+        "answerButton"
+    ).disabled = true;
+
+
+    const resultBox =
+        document.getElementById(
+            "resultBox"
+        );
+
+
+    /* =====================================================
+       GOED
+    ===================================================== */
+
+    if (goed) {
+
+        score += 100;
+
+
+        /*
+           BELANGRIJK:
+
+           Alleen een goed antwoord krijgt de letter.
+
+           De letter wordt op de vaste positie geplaatst.
+        */
+
+        gevondenLetters[
+            huidigeLocatie
+        ] =
+            locatie.letter;
+
+
+        resultBox.className =
+            "result correct";
+
+
+        resultBox.innerHTML =
+
+            "<strong>🎉 Goed antwoord!</strong>" +
+
+            "<div class='unlockedLetter'>" +
+
+            locatie.letter +
+
+            "</div>" +
+
+            "<strong>Je hebt 100 punten verdiend.</strong>";
+
+
+        resultBox.style.display =
+            "block";
+
+
+        document.getElementById(
+            "locationStatus"
+        ).textContent =
+            "✅ Vraag goed beantwoord!";
+
+
+        updateCode();
+
+        updateStats();
+
+        slaOp();
+
+    }
+
+
+    /* =====================================================
+       FOUT
+    ===================================================== */
+
+    else {
+
+        /*
+           GEEN letter!
+
+           De positie blijft leeg.
+        */
+
+        resultBox.className =
+            "result wrong";
+
+
+        resultBox.innerHTML =
+
+            "<strong>❌ Helaas, dat antwoord is niet goed.</strong>" +
+
+            "<br><br>" +
+
+            "Het juiste antwoord is: <strong>" +
+
+            locatie.antwoorden[0] +
+
+            "</strong>" +
+
+            "<br><br>" +
+
+            locatie.uitleg;
+
+
+        resultBox.style.display =
+            "block";
+
+
+        document.getElementById(
+            "locationStatus"
+        ).textContent =
+            "❌ Helaas, fout antwoord.";
+
+
+        updateCode();
+
+        updateStats();
+
+        slaOp();
+
+    }
+
+
+    /*
+       Nu mag de speler verder.
+    */
+
+    document.getElementById(
+        "nextButton"
+    ).style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   VOLGENDE LOCATIE
+========================================================= */
+
+function gaVerder() {
+
+    if (!vraagBeantwoord) {
+
+        return;
+    }
+
+
+    huidigeLocatie++;
+
+
+    vraagBeantwoord = false;
+
+
+    /*
+       Alle 14 vragen gehad?
+    */
+
+    if (
+        huidigeLocatie >=
+        locaties.length
+    ) {
+
+        activeerFinale();
+
+        slaOp();
+
+        return;
+    }
+
+
+    toonLocatie();
+
+    slaOp();
+
+}
+
+
+/* =========================================================
+   FINALE ACTIVEREN
+========================================================= */
+
+function activeerFinale() {
+
+    finaleActief = true;
+
+
+    document.getElementById(
+        "questionCard"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "finalScreen"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "locationTitle"
+    ).textContent =
+        "Elsbroekerpark";
+
+
+    document.getElementById(
+        "story"
+    ).textContent =
+
+        "De 14 vragen zijn afgerond. " +
+        "De geheime eindbestemming van de schattenjacht " +
+        "is Elsbroekerpark. Ga naar de eindlocatie " +
+        "om de schat te vinden.";
+
+
+    document.getElementById(
+        "locationStatus"
+    ).textContent =
+        "🏴‍☠️ Zoek Elsbroekerpark";
+
+
+    document.getElementById(
+        "distance"
+    ).textContent =
+        "GPS zoeken...";
+
+
+    document.getElementById(
+        "direction"
+    ).textContent =
+        "—";
+
+
+    /*
+       Finale marker verwijderen.
+    */
+
+    if (doelMarker) {
+
+        kaart.removeLayer(
+            doelMarker
+        );
+
+        doelMarker = null;
+    }
+
+
+    /*
+       Exacte eindlocatie nog NIET tonen.
+    */
+
+    if (laatstePositie) {
+
+        kaart.setView(
+            [
+                laatstePositie.lat,
+                laatstePositie.lon
+            ],
+            14
+        );
+
+    }
+
+
+    updateCode();
+
+    updateStats();
+
+    slaOp();
+
+}
+
+
+/* =========================================================
+   FINALE GPS
+========================================================= */
+
+function verwerkFinaleGPS(
+    positie
+) {
+
+    const afstand =
+        berekenAfstand(
+
+            positie.lat,
+
+            positie.lon,
+
+            finale.lat,
+
+            finale.lon
+
+        );
+
+
+    document.getElementById(
+        "distance"
+    ).textContent =
+        formatAfstand(
+            afstand
+        );
+
+
+    document.getElementById(
+        "direction"
+    ).textContent =
+
+        "Bestemming ligt richting " +
+
+        bepaalRichting(
+
+            positie.lat,
+
+            positie.lon,
+
+            finale.lat,
+
+            finale.lon
+
+        );
+
+
+    /*
+       Exacte schatmarker pas binnen 100 meter.
+    */
+
+    if (
+
+        afstand <=
+        finale.onthulAfstand &&
+
+        !doelMarker
+
+    ) {
+
+        doelMarker =
+            L.marker(
+
+                [
+                    finale.lat,
+                    finale.lon
+                ],
+
+                {
+                    icon:
+                        schatkistIcon
+                }
+
+            )
+            .addTo(kaart)
+
+            .bindPopup(
+                "<strong>💰 DE SCHAT!</strong>"
+            );
+
+
+        document.getElementById(
+            "locationStatus"
+        ).textContent =
+            "💰 De schat is onthuld!";
+
+
+        document.getElementById(
+            "story"
+        ).textContent =
+            "Je bent dichtbij! De schatkist staat nu op de kaart.";
+
+    }
+
+
+    /*
+       Binnen 40 meter = gevonden.
+    */
+
+    if (
+
+        afstand <=
+        finale.afstand &&
+
+        !schatGevonden
+
+    ) {
+
+        schatGevonden = true;
+
+        toonSchatGevonden();
+
+    }
+
+}
+
+
+/* =========================================================
+   SCHAT GEVONDEN
+========================================================= */
+
+function toonSchatGevonden() {
+
+    document.getElementById(
+        "treasureScreen"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "finalScreen"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "locationStatus"
+    ).textContent =
+        "🏆 SCHAT GEVONDEN!";
+
+
+    document.getElementById(
+        "distance"
+    ).textContent =
+        "0 meter";
+
+
+    document.getElementById(
+        "direction"
+    ).textContent =
+        "Je hebt de eindbestemming bereikt!";
+
+
+    document.getElementById(
+        "finalTime"
+    ).textContent =
+        formatTijd(
+            seconden
+        );
+
+
+    document.getElementById(
+        "finalScore"
+    ).textContent =
+        score;
+
+
+    if (timer) {
+
+        clearInterval(timer);
+
+        timer = null;
+    }
+
+
+    if (gpsWatch !== null) {
+
+        navigator.geolocation.clearWatch(
+            gpsWatch
+        );
+
+        gpsWatch = null;
+    }
+
+
+    slaOp();
+
+}
+
+
+/* =========================================================
+   CODE WEERGEVEN
+========================================================= */
+
+function updateCode() {
+
+    const codeBar =
+        document.getElementById(
+            "codeBar"
+        );
+
+
+    codeBar.innerHTML = "";
+
+
+    /*
+       Altijd exact 14 vakjes.
+    */
+
+    for (
+        let i = 0;
+        i < 14;
+        i++
+    ) {
+
+        const vakje =
+            document.createElement(
+                "div"
+            );
+
+
+        vakje.className =
+            "codeLetter";
+
+
+        if (
+            gevondenLetters[i]
+        ) {
+
+            vakje.textContent =
+                gevondenLetters[i];
+
+
+            vakje.classList.add(
+                "found"
+            );
+
+        }
+
+        else {
+
+            vakje.textContent =
+                "_";
+
+        }
+
+
+        codeBar.appendChild(
+            vakje
+        );
+
+    }
+
+
+    /*
+       Toon de verzamelde letters.
+
+       Lege posities blijven leeg.
+    */
+
+    const volledigeCode =
+        gevondenLetters.join("");
+
+
+    document.getElementById(
+        "finalCode"
+    ).textContent =
+
+        volledigeCode ||
+
+        "______________";
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats() {
+
+    document.getElementById(
+        "score"
+    ).textContent =
+        score;
+
+
+    if (finaleActief) {
+
+        document.getElementById(
+            "locationNumber"
+        ).textContent =
+            "FINALE";
+
+    }
+
+    else {
+
+        document.getElementById(
+            "locationNumber"
+        ).textContent =
+
+            (huidigeLocatie + 1) +
+
+            "/" +
+
+            locaties.length;
+
+    }
+
+}
+
+
+/* =========================================================
+   OPSLAAN
+========================================================= */
+
+function slaOp() {
+
+    const data = {
+
+        seconden:
+            seconden,
+
+        score:
+            score,
+
+        huidigeLocatie:
+            huidigeLocatie,
+
+        gevondenLetters:
+            gevondenLetters,
+
+        finaleActief:
+            finaleActief,
+
+        schatGevonden:
+            schatGevonden
+
+    };
+
+
+    localStorage.setItem(
+
+        OPSLAG_KEY,
+
+        JSON.stringify(data)
+
+    );
+
+}
+
+
+/* =========================================================
+   ANTWOORD NORMALISEREN
+========================================================= */
+
+function normaliseer(
+    tekst
+) {
+
+    return tekst
+
+        .toLowerCase()
+
+        .trim()
+
+        .replace(
+            /\s+/g,
+            " "
+        );
+
+}
+
+
+/* =========================================================
+   AFSTAND
+========================================================= */
+
+function berekenAfstand(
+
+    lat1,
+    lon1,
+    lat2,
+    lon2
+
+) {
+
+    const R =
+        6371000;
+
+
+    const dLat =
+        gradenNaarRadialen(
+            lat2 - lat1
+        );
+
+
+    const dLon =
+        gradenNaarRadialen(
+            lon2 - lon1
+        );
+
+
+    const a =
+
+        Math.sin(
+            dLat / 2
+        ) *
+        Math.sin(
+            dLat / 2
+        )
+
+        +
+
+        Math.cos(
+            gradenNaarRadialen(
+                lat1
+            )
+        )
+
+        *
+
+        Math.cos(
+            gradenNaarRadialen(
+                lat2
+            )
+        )
+
+        *
+
+        Math.sin(
+            dLon / 2
+        )
+
+        *
+
+        Math.sin(
+            dLon / 2
+        );
+
+
+    const c =
+
+        2 *
+
+        Math.atan2(
+
+            Math.sqrt(a),
+
+            Math.sqrt(
+                1 - a
+            )
+
+        );
+
+
+    return R * c;
+
+}
+
+
+function gradenNaarRadialen(
+    graden
+) {
+
+    return (
+
+        graden *
+
+        Math.PI /
+
+        180
+
+    );
+
+}
+
+
+/* =========================================================
+   AFSTAND OPMAKEN
+========================================================= */
+
+function formatAfstand(
+    afstand
+) {
+
+    if (
+        afstand < 1000
+    ) {
+
+        return (
+
+            Math.round(
+                afstand
+            ) +
+
+            " meter"
+
+        );
+
+    }
+
+
+    return (
+
+        afstand / 1000
+
+    ).toFixed(2)
+
+        +
+
+        " km";
+
+}
+
+
+/* =========================================================
+   RICHTING
+========================================================= */
+
+function bepaalRichting(
+
+    lat1,
+    lon1,
+    lat2,
+    lon2
+
+) {
+
+    const dLon =
+        gradenNaarRadialen(
+            lon2 - lon1
+        );
+
+
+    const y =
+
+        Math.sin(dLon)
+
+        *
+
+        Math.cos(
+            gradenNaarRadialen(
+                lat2
+            )
+        );
+
+
+    const x =
+
+        Math.cos(
+            gradenNaarRadialen(
+                lat1
+            )
+        )
+
+        *
+
+        Math.sin(
+            gradenNaarRadialen(
+                lat2
+            )
+        )
+
+        -
+
+        Math.sin(
+            gradenNaarRadialen(
+                lat1
+            )
+        )
+
+        *
+
+        Math.cos(
+            gradenNaarRadialen(
+                lat2
+            )
+        )
+
+        *
+
+        Math.cos(dLon);
+
+
+    let hoek =
+
+        Math.atan2(
+            y,
+            x
+        )
+
+        *
+
+        180 /
+
+        Math.PI;
+
+
+    hoek =
+
+        (hoek + 360) %
+
+        360;
+
+
+    if (
+        hoek >= 315 ||
+        hoek < 45
+    ) {
+
+        return "noord";
+
+    }
+
+
+    if (
+        hoek >= 45 &&
+        hoek < 135
+    ) {
+
+        return "oost";
+
+    }
+
+
+    if (
+        hoek >= 135 &&
+        hoek < 225
+    ) {
+
+        return "zuid";
+
+    }
+
+
+    return "west";
+
+}
+
+
+/* =========================================================
+   TIJD
+========================================================= */
+
+function formatTijd(
+    totaal
+) {
+
+    const minuten =
+        Math.floor(
+            totaal / 60
+        );
+
+
+    const secondenOver =
+        totaal % 60;
+
+
+    return (
+
+        String(
+            minuten
+        ).padStart(
+            2,
+            "0"
+        )
+
+        +
+
+        ":"
+
+        +
+
+        String(
+            secondenOver
+        ).padStart(
+            2,
+            "0"
+        )
+
+    );
+
+}
+
+
+/* =========================================================
+   ENTER = OPEN VRAAG CONTROLEREN
+========================================================= */
+
+document
+    .getElementById(
+        "answerInput"
+    )
+    .addEventListener(
+
+        "keydown",
+
+        function(event) {
+
+            if (
+
+                event.key === "Enter" &&
+
+                !vraagBeantwoord
+
+            ) {
+
+                controleerAntwoord();
+
+            }
+
+        }
+
+    );
+
+
+/* =========================================================
+   BESTAAND SPEL CONTROLEREN
+========================================================= */
+
+window.addEventListener(
+
+    "load",
+
+    function() {
+
+        const opgeslagen =
+            localStorage.getItem(
+                OPSLAG_KEY
+            );
+
+
+        if (opgeslagen) {
+
+            document.getElementById(
+                "continueButton"
+            ).style.display =
+                "block";
+
+        }
+
+    }
+
+);
+
+
+/* =========================================================
+   SCHERM WAKKER HOUDEN
+========================================================= */
+
+async function houdSchermWakker() {
+
+    try {
+
+        if (
+            "wakeLock" in navigator
+        ) {
+
+            await navigator.wakeLock.request(
+                "screen"
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "Wake Lock niet beschikbaar:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+   Ook opnieuw proberen wanneer de pagina
+   terug op de voorgrond komt.
+*/
+
+document.addEventListener(
+
+    "visibilitychange",
+
+    function() {
+
+        if (
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            if (
+                finaleActief ||
+                !document.getElementById(
+                    "gameScreen"
+                ).style.display === "none"
+            ) {
+
+                houdSchermWakker();
+
+            }
+
+        }
+
+    }
+
+);
+
+
+/* =========================================================
+   EINDE
+========================================================= */
+
+</script>
+
+</body>
+
+</html>
+```
